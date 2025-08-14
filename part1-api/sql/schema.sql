@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS clans (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name TEXT NOT NULL,
   region TEXT NULL,
-  --created_at TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'utc')
+  created_at TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'utc')
 );
 
 -- Optional: index for region filter + created_at sort

@@ -14,6 +14,15 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Vertigo Clans API")
 
+
+@app.get("/health", tags=["system"])
+def health_check():
+    return {"status": "ok"}
+
+@app.get("/")
+def root():
+    return {"status": "ok", "endpoints": ["/health", "/docs", "/clans"]}
+
 @app.post("/clans", response_model=dict, status_code=201)
 def create_clan(payload: ClanCreate, db: Session = Depends(get_db)):
     clan = Clan(name=payload.name, region=payload.region)

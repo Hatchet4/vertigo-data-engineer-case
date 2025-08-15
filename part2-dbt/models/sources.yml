@@ -1,0 +1,22 @@
+version: 2
+
+sources:
+  - name: raw
+    schema: raw
+    tables:
+      - name: user_daily_metrics
+        columns:
+          - name: user_id
+          - name: event_date
+          - name: install_date
+          - name: platform
+          - name: country
+          - name: total_session_count
+          - name: total_session_duration
+          - name: match_start_count
+          - name: match_end_count
+          - name: victory_count
+          - name: defeat_count
+          - name: server_connection_error
+          - name: iap_revenue
+          - name: ad_revenue

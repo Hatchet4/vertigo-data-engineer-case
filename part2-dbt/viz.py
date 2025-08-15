@@ -68,8 +68,6 @@ fig_arpdau = px.line(df_arpdau, x="event_date", y="arpdau",
                      title=f"ARPDAU (Mean) Over Time (Last {DAYS} Days)")
 fig_arpdau.update_layout(xaxis_title="Date", yaxis_title="ARPDAU")
 
-# =============== Build ONE HTML file =========================
-# Convert each figure to a <div> (no full HTML), then stitch together
 divs = []
 for figure in [fig_dau, fig_rev, fig_cmp, fig_arpdau]:
     divs.append(pio.to_html(figure, include_plotlyjs=False, full_html=False))

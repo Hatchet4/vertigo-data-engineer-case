@@ -1,6 +1,8 @@
 {{ config(
     materialized='incremental',
-    unique_key='event_date_country_platform'
+    unique_key='event_date_country_platform',
+    partition_by={"field": "event_date", "data_type": "date"},
+    cluster_by=["country", "platform"]
 ) }}
 
 WITH base AS (

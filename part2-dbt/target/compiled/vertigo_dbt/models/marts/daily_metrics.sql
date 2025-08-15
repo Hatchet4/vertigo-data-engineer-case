@@ -15,15 +15,10 @@ WITH base AS (
     COALESCE(ad_revenue,  0.0)           AS ad_revenue
   FROM `winter-accord-469013-d5`.`raw`.`user_daily_metrics`
   
-    WHERE event_date >= (
-      SELECT COALESCE(DATE_SUB(MAX(event_date), INTERVAL 2 DAY), DATE('1970-01-01')) FROM `winter-accord-469013-d5`.`analytics`.`daily_metrics`
-    )
-  
 )
 
 SELECT
   event_date,
-  -- normalize blanks to NULLs then coalesce to sentinel
   COALESCE(NULLIF(TRIM(country),   ""), "∅") AS country,
   COALESCE(NULLIF(TRIM(platform),  ""), "∅") AS platform,
 

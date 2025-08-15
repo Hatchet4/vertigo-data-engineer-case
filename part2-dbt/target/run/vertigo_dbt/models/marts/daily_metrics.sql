@@ -1,32 +1,58 @@
--- back compat for old kwarg name
+
   
+    
+
+    create or replace table `winter-accord-469013-d5`.`analytics`.`daily_metrics`
+      
+    partition by event_date
+    cluster by country, platform
+
+    
+    OPTIONS()
+    as (
+      
+
+WITH base AS (
+  SELECT
+    event_date,
+    country,
+    platform,
+    user_id,
+    COALESCE(match_start_count, 0)       AS match_start_count,
+    COALESCE(match_end_count, 0)         AS match_end_count,
+    COALESCE(victory_count, 0)           AS victory_count,
+    COALESCE(defeat_count, 0)            AS defeat_count,
+    COALESCE(server_connection_error, 0) AS server_connection_error,
+    COALESCE(iap_revenue, 0.0)           AS iap_revenue,
+    COALESCE(ad_revenue,  0.0)           AS ad_revenue
+  FROM `winter-accord-469013-d5`.`raw`.`user_daily_metrics`
   
-        
-            
-	    
-	    
-            
-        
-    
+)
 
-    
+SELECT
+  event_date,
+  COALESCE(NULLIF(TRIM(country),   ""), "∅") AS country,
+  COALESCE(NULLIF(TRIM(platform),  ""), "∅") AS platform,
 
-    merge into `winter-accord-469013-d5`.`analytics`.`daily_metrics` as DBT_INTERNAL_DEST
-        using (
-        select
-        * from `winter-accord-469013-d5`.`analytics`.`daily_metrics__dbt_tmp`
-        ) as DBT_INTERNAL_SOURCE
-        on ((DBT_INTERNAL_SOURCE.event_date_country_platform = DBT_INTERNAL_DEST.event_date_country_platform))
+  CONCAT(
+    CAST(event_date AS STRING), '::',
+    COALESCE(NULLIF(TRIM(country),  ""), "∅"), '::',
+    COALESCE(NULLIF(TRIM(platform), ""), "∅")
+  ) AS event_date_country_platform,
 
-    
-    when matched then update set
-        `event_date` = DBT_INTERNAL_SOURCE.`event_date`,`country` = DBT_INTERNAL_SOURCE.`country`,`platform` = DBT_INTERNAL_SOURCE.`platform`,`event_date_country_platform` = DBT_INTERNAL_SOURCE.`event_date_country_platform`,`dau` = DBT_INTERNAL_SOURCE.`dau`,`total_iap_revenue` = DBT_INTERNAL_SOURCE.`total_iap_revenue`,`total_ad_revenue` = DBT_INTERNAL_SOURCE.`total_ad_revenue`,`arpdau` = DBT_INTERNAL_SOURCE.`arpdau`,`matches_started` = DBT_INTERNAL_SOURCE.`matches_started`,`match_per_dau` = DBT_INTERNAL_SOURCE.`match_per_dau`,`win_ratio` = DBT_INTERNAL_SOURCE.`win_ratio`,`defeat_ratio` = DBT_INTERNAL_SOURCE.`defeat_ratio`,`server_error_per_dau` = DBT_INTERNAL_SOURCE.`server_error_per_dau`
-    
+  COUNT(DISTINCT user_id)                                            AS dau,
+  SUM(iap_revenue)                                                   AS total_iap_revenue,
+  SUM(ad_revenue)                                                    AS total_ad_revenue,
+  SAFE_DIVIDE(SUM(iap_revenue) + SUM(ad_revenue), COUNT(DISTINCT user_id)) AS arpdau,
 
-    when not matched then insert
-        (`event_date`, `country`, `platform`, `event_date_country_platform`, `dau`, `total_iap_revenue`, `total_ad_revenue`, `arpdau`, `matches_started`, `match_per_dau`, `win_ratio`, `defeat_ratio`, `server_error_per_dau`)
-    values
-        (`event_date`, `country`, `platform`, `event_date_country_platform`, `dau`, `total_iap_revenue`, `total_ad_revenue`, `arpdau`, `matches_started`, `match_per_dau`, `win_ratio`, `defeat_ratio`, `server_error_per_dau`)
+  SUM(match_start_count)                                             AS matches_started,
+  SAFE_DIVIDE(SUM(match_start_count), COUNT(DISTINCT user_id))       AS match_per_dau,
 
+  SAFE_DIVIDE(SUM(victory_count), NULLIF(SUM(match_end_count), 0))   AS win_ratio,
+  SAFE_DIVIDE(SUM(defeat_count),  NULLIF(SUM(match_end_count), 0))   AS defeat_ratio,
 
-    
+  SAFE_DIVIDE(SUM(server_connection_error), COUNT(DISTINCT user_id)) AS server_error_per_dau
+FROM base
+GROUP BY 1,2,3,4
+    );
+  

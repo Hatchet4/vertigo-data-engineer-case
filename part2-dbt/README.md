@@ -7,8 +7,11 @@
 
 ## 2) How to run on Google Shell
 - Run dbt build 
-- Run dbt run --full-refresh --select daily_metrics for not inccremental run
+- Run dbt run --full-refresh --select daily_metrics for a full run (not incremental run) 
+- Run python viz.py for dashboard if it doesnt exist
+- Download and open viz.py for checking the dashboard
 
+You might need to create a ~/.dbt folder and add this profiles.yml to it
 Create `~/.dbt/profiles.yml`:
 ```yaml
 vertigo_profile:

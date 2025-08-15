@@ -26,7 +26,6 @@ WITH base AS (
 
 SELECT
   event_date,
-  -- normalize blanks to NULLs then coalesce to sentinel
   COALESCE(NULLIF(TRIM(country),   ""), "∅") AS country,
   COALESCE(NULLIF(TRIM(platform),  ""), "∅") AS platform,
 

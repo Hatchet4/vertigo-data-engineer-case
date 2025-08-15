@@ -4,6 +4,8 @@ config-version: 2
 profile: vertigo_profile
 model-paths: ["models"]
 
+clean-targets: ["dbt_packages"]
+
 models:
   vertigo_dbt:
     +materialized: table
